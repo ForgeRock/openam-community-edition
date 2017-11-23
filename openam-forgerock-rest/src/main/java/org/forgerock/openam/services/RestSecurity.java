@@ -24,6 +24,7 @@
 package org.forgerock.openam.services;
 
 import com.sun.identity.security.AdminTokenAction;
+import com.sun.identity.shared.debug.Debug;
 import com.sun.identity.sm.DNMapper;
 import com.sun.identity.sm.ServiceConfig;
 import com.sun.identity.sm.ServiceConfigManager;
@@ -36,9 +37,12 @@ import java.security.AccessController;
 
 public class RestSecurity {
 
+    private static Debug debug = Debug.getInstance("frRest");
+
     private static ServiceConfigManager mgr;
     private RestSecurityConfiguration restSecurityConfiguration;
 
+    private final static String SELF_SERVICE = "forgerockRESTSecuritySelfServiceEnabled";
     private final static String SELF_REGISTRATION = "forgerockRESTSecuritySelfRegistrationEnabled";
     private final static String SELF_REG_CONFIRMATION_URL = "forgerockRESTSecuritySelfRegConfirmationUrl";
     private final static String FORGOT_PASSWORD = "forgerockRESTSecurityForgotPasswordEnabled";
@@ -108,20 +112,23 @@ public class RestSecurity {
         final String forgotPasswordConfirmationUrl;
         final Boolean selfRegistration;
         final Boolean forgotPassword;
+        final Boolean selfService;
 
-        private RestSecurityConfiguration(Long selfRegTokenLifeTime, String selfRegistrationConfirmationUrl, Long forgotPasswordLifeTime, String forgotPasswordConfirmationUrl, Boolean selfRegistration, Boolean forgotPassword) {
+        private RestSecurityConfiguration(Long selfRegTokenLifeTime, String selfRegistrationConfirmationUrl, Long forgotPasswordLifeTime, String forgotPasswordConfirmationUrl, Boolean selfRegistration, Boolean forgotPassword, Boolean selfService) {
             this.selfRegTokenLifeTime = selfRegTokenLifeTime;
             this.selfRegistrationConfirmationUrl = selfRegistrationConfirmationUrl;
             this.forgotPasswordTokenLifeTime = forgotPasswordLifeTime;
             this.forgotPasswordConfirmationUrl = forgotPasswordConfirmationUrl;
             this.selfRegistration = selfRegistration;
             this.forgotPassword = forgotPassword;
+            this.selfService = selfService;
         }
     }
 
     private void initializeSettings(ServiceConfigManager serviceConfigManager) {
         try {
             ServiceConfig serviceConfig = serviceConfigManager.getOrganizationConfig(realm, null);
+            boolean selfService = RestUtils.getBooleanAttribute(serviceConfig, SELF_SERVICE);
             boolean selfRegistration = RestUtils.getBooleanAttribute(serviceConfig, SELF_REGISTRATION);
             String selfRegistrationConfirmationUrl = RestUtils.getStringAttribute(serviceConfig, SELF_REG_CONFIRMATION_URL);
             boolean forgotPassword = RestUtils.getBooleanAttribute(serviceConfig, FORGOT_PASSWORD);
@@ -134,7 +141,8 @@ public class RestSecurity {
                     forgotPassTokLifeTime,
                     forgotPasswordConfirmationUrl,
                     selfRegistration,
-                    forgotPassword);
+                    forgotPassword,
+                    selfService);
 
             setProviderConfig(newRestSecuritySettings);
             if (RestDispatcher.debug.messageEnabled()) {
@@ -166,6 +174,16 @@ public class RestSecurity {
         if (mgr.addListener(new RestSecurityChangeListener()) == null) {
             RestDispatcher.debug.error("Could not add listener to ServiceConfigManager instance. Rest Security service " +
                     "changes will not be dynamically updated for realm " + realm);
+        }
+    }
+
+    public boolean isSelfServiceRestEndpointEnabled() throws ServiceNotFoundException {
+        if ((restSecurityConfiguration != null) && (restSecurityConfiguration.selfService != null)) {
+            return restSecurityConfiguration.selfService;
+        } else {
+            String message = "RestSecurity::Unable to get provider setting for : "+ SELF_SERVICE;
+            debug.error(message);
+            throw new ServiceNotFoundException(message);
         }
     }
 
