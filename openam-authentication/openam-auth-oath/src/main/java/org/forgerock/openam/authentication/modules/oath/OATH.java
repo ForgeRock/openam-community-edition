@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Collections;
 import java.util.ResourceBundle;
+import java.security.MessageDigest;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.PasswordCallback;
@@ -516,7 +517,7 @@ public class OATH extends AMLoginModule {
                             passLen,
                             checksum,
                             truncationOffset);
-                    if (otpGen.equals(otp)) {
+                    if (isEqual(otpGen, otp)) {
                         //OTP is correct set the counter value to counter+i
                         setCounterAttr(id, counter + i);
                         return true;
@@ -583,6 +584,12 @@ public class OATH extends AMLoginModule {
                 //get Time Step
                 long localTime = time;
                 localTime /= totpTimeStep;
+                long lastLoginTimeStep = lastLoginTime / totpTimeStep;
+
+                if(lastLoginTimeStep == localTime){
+                    debug.error("OATH.checkOTP(): Login failed attempting to use the same OTP in same Time Step: " + localTime);
+                    throw new InvalidPasswordException(amAuthOATH, "authFailed", null, userName, null);
+                }
 
                 boolean sameWindow = false;
 
@@ -603,7 +610,7 @@ public class OATH extends AMLoginModule {
                 otpGen = TOTPAlgorithm.generateTOTP(secretKey,
                         Long.toHexString(localTime),
                         passLenStr);
-                if (otpGen.equals(otp)) {
+                if (isEqual(otpGen, otp)) {
                     setLoginTime(id, localTime);
                     return true;
                 }
@@ -616,7 +623,7 @@ public class OATH extends AMLoginModule {
                     otpGen = TOTPAlgorithm.generateTOTP(secretKey,
                             Long.toHexString(time1),
                             passLenStr);
-                    if (otpGen.equals(otp)) {
+                    if (isEqual(otpGen, otp)) {
                         setLoginTime(id, time1);
                         return true;
                     }
@@ -626,12 +633,12 @@ public class OATH extends AMLoginModule {
                     otpGen = TOTPAlgorithm.generateTOTP(secretKey, 
                                                         Long.toHexString(time2), 
                                                         passLenStr);
-                    if (otpGen.equals(otp) && sameWindow){
+                    if (isEqual(otpGen, otp) && sameWindow) {
                         debug.error("OATH" +
                                 ".checkOTP() : " +
-                                "Loging in in the same window with a OTP that is older than the current times OTP");
+                                "Login the same window with a OTP that is older than the current OTP");
                         return false;
-                    } else if(otpGen.equals(otp) && !sameWindow)  {
+                    } else if (isEqual(otpGen, otp) && !sameWindow) {
                         setLoginTime(id, time2);
                         return true;
                     }
@@ -768,5 +775,17 @@ public class OATH extends AMLoginModule {
             throw new AuthLoginException(amAuthOATH, "authFailed", null);
         }
         return;
+    }
+
+    /**
+     * Perform time constant equality check.
+     * Both values should not be null.
+     *
+     * @param str1 first value
+     * @param str2 second vale
+     * @return true if values are equal
+     */
+    private boolean isEqual(String str1, String str2)   {
+         return MessageDigest.isEqual(str1.getBytes(), str2.getBytes());
     }
 }

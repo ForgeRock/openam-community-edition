@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2014 ForgeRock AS.
+ * Copyright 2014-2016 ForgeRock AS.
  */
 package org.forgerock.openam.shared.security.whitelist;
 
@@ -131,12 +131,102 @@ public class RedirectUrlValidatorTest {
         assertThat(validator.isRedirectUrlValid(url, null)).isEqualTo(result);
     }
 
+    @DataProvider(name = "schemeRelative")
+    public Object[][] getSchemeRelativeCases() {
+        //FIXME the scheme relative URLs are currently incorrectly validated, see OPENAM-8022
+        return new Object[][]{
+                {"//example.com", false},
+                {"//example.com/index.html", false},
+                {"//example.com/foo/index.html", false},
+                {"//example.com/foo/bar/index.html", false},
+                {"//example.com/foo/bar/index.html/c", false},
+        };
+    }
+
+    @Test(dataProvider = "schemeRelative")
+    public void testSchemeRelativeUrls(String url, boolean result) {
+        RedirectUrlValidator<String> validator = getValidator(asSet("http://example.com/*"));
+        assertThat(validator.isRedirectUrlValid(url, null)).isEqualTo(result);
+
+    }
     private RedirectUrlValidator<String> getValidator(final Set<String> domains) {
-        return new RedirectUrlValidator<String>(new ValidDomainExtractor<String>() {
+        return new RedirectUrlValidator<>(new ValidDomainExtractor<String>() {
 
             public Collection<String> extractValidDomains(String configInfo) {
                 return domains;
             }
         });
+    }
+
+    @DataProvider(name = "relative")
+    public Object[][] getRelativeCases() {
+        return new Object[][]{
+                {"/foo", true},
+                {"foo", true},
+                {"foo?abc=123", true},
+                {"foo/bar", true},
+                {"areallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurl", true},
+                {"areallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurlareallyreallylongurltoolong", false},
+        };
+    }
+
+    @Test(dataProvider = "relative")
+    public void testRelativeUrlsWithWhitelist(String url, boolean result) {
+        RedirectUrlValidator<String> validator = getValidator(asSet("http://example.com/*"));
+        assertThat(validator.isRedirectUrlValid(url, null)).isEqualTo(result);
+    }
+
+    @Test(dataProvider = "relative")
+    public void testRelativeUrlsWithoutWhitelist(String url, boolean result) {
+        RedirectUrlValidator<String> validator = getValidator(null);
+        assertThat(validator.isRedirectUrlValid(url, null)).isEqualTo(result);
+    }
+
+    @DataProvider(name = "javascript")
+    public Object[][] getJavaScriptCases() {
+        return new Object[][]{
+                {"javascript:alert", false},
+                {"java%73cript:alert", false},
+                {"  javascript:alert", false},
+                {"JavaSCRIpt:alert", false},
+                {"/javascript:alert", true},
+        };
+    }
+
+    @Test(dataProvider = "javascript")
+    public void testJavaScriptUrlsWithWhitelist(String url, boolean result) {
+        RedirectUrlValidator<String> validator = getValidator(asSet("http://example.com/*"));
+        assertThat(validator.isRedirectUrlValid(url, null)).isEqualTo(result);
+    }
+
+    @Test(dataProvider = "javascript")
+    public void testJavaScriptUrlsWithoutWhitelist(String url, boolean result) {
+        RedirectUrlValidator<String> validator = getValidator(null);
+        assertThat(validator.isRedirectUrlValid(url, null)).isEqualTo(result);
+    }
+
+    @DataProvider(name = "malformed")
+    public Object[][] getMalformedCases() {
+        return new Object[][]{
+                {"/a bc", false},
+                {"/a\"", false},
+                // invalid protocol
+                {"ftp://example.com", false},
+                // This is an example of a redirect URL that OpenAM can produce
+                {"http://example.com/openam/oauth2/authorize?nonce=1234&scope=test%20test2&response_type=code&"
+                        + "client_id=myagent&redirect_uri=http%3A%2F%2Fgoogle.com", true}
+        };
+    }
+
+    @Test(dataProvider = "malformed")
+    public void testMalformedUrlsWithWhitelist(String url, boolean result) {
+        RedirectUrlValidator<String> validator = getValidator(asSet("http://example.com/*?*"));
+        assertThat(validator.isRedirectUrlValid(url, null)).isEqualTo(result);
+    }
+
+    @Test(dataProvider = "malformed")
+    public void testMalformedUrlsWithoutWhitelist(String url, boolean result) {
+        RedirectUrlValidator<String> validator = getValidator(null);
+        assertThat(validator.isRedirectUrlValid(url, null)).isEqualTo(result);
     }
 }
