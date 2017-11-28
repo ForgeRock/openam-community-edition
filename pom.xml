@@ -132,6 +132,7 @@
         <xercesj.version>2.11.0</xercesj.version>
         <powermock.version>1.5</powermock.version>
         <jackson.version>2.1.2</jackson.version>
+        <santuario.xmlsec.version>1.5.6</santuario.xmlsec.version>
         <click.version>2.3.0</click.version>
         <commons-beanutils.version>1.8.3</commons-beanutils.version>
         <commons-codec.version>1.6</commons-codec.version>
@@ -1523,6 +1524,15 @@
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice</artifactId>
                 <version>3.0</version>
+            </dependency>
+
+            <!--
+              required by the STS
+              -->
+            <dependency>
+                <groupId>org.apache.santuario</groupId>
+                <artifactId>xmlsec</artifactId>
+                <version>${santuario.xmlsec.version}</version>
             </dependency>
 
             <!-- Test dependency -->

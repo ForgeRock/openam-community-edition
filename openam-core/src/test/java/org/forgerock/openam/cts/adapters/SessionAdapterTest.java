@@ -17,6 +17,7 @@ package org.forgerock.openam.cts.adapters;
 
 import com.iplanet.dpro.session.SessionID;
 import com.iplanet.dpro.session.service.InternalSession;
+
 import org.forgerock.openam.cts.CoreTokenConfig;
 import org.forgerock.openam.cts.TokenTestUtils;
 import org.forgerock.openam.cts.api.TokenType;
@@ -27,6 +28,7 @@ import org.forgerock.openam.cts.exceptions.CoreTokenException;
 import org.forgerock.openam.cts.utils.JSONSerialisation;
 import org.forgerock.openam.cts.utils.LDAPDataConversion;
 import org.forgerock.openam.cts.utils.blob.TokenBlobUtils;
+import org.forgerock.openam.utils.StringUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 

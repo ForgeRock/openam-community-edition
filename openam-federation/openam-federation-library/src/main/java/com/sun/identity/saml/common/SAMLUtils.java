@@ -24,9 +24,6 @@
  *
  * $Id: SAMLUtils.java,v 1.16 2010/01/09 19:41:06 qcheng Exp $
  *
- */
-
-/**
  * Portions Copyrighted 2012-2014 ForgeRock AS
  */
 
@@ -99,8 +96,7 @@ import com.sun.identity.federation.common.FSUtils;
 
 import javax.xml.parsers.DocumentBuilder;
 
-import com.sun.org.apache.xml.internal.security.c14n.Canonicalizer;
-//import com.sun.org.apache.xml.internal.security.Init;
+import org.apache.xml.security.c14n.Canonicalizer;
 
 /**
  * This class contains some utility methods for processing SAML protocols.
@@ -136,7 +132,7 @@ public class SAMLUtils  extends SAMLUtilsCommon {
     private static Object ssoToken;
  
     static {
-        com.sun.org.apache.xml.internal.security.Init.init();
+        org.apache.xml.security.Init.init();
         if (SystemConfigurationUtil.isServerMode()) {
             long period = ((Integer) SAMLServiceManager.getAttribute(
                         SAMLConstants.CLEANUP_INTERVAL_NAME)).intValue() * 1000;
