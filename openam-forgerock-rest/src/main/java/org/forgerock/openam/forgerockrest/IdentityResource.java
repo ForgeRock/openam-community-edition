@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sun.identity.sm.SMSException;
+import com.sun.identity.shared.debug.Debug;
 import com.sun.identity.shared.encode.Hash;
 import org.forgerock.openam.cts.CTSPersistentStore;
 import org.forgerock.openam.cts.api.TokenType;
@@ -83,6 +84,8 @@ public final class IdentityResource implements CollectionResourceProvider {
     // TODO: filters, sorting, paged results.
 
     private static final String AM_ENCRYPTION_PWD = "am.encryption.pwd";
+
+    private static Debug debug = Debug.getInstance("frRest");
 
     private final List<Attribute> idSvcsAttrList;
     private String realm;
@@ -231,6 +234,12 @@ public final class IdentityResource implements CollectionResourceProvider {
                 RestDispatcher.debug.warning("IdentityResource.createRegistrationEmail(): " +
                         "Rest Security not created. restSecurity = " + restSecurity);
                 throw new NotFoundException("Rest Security Service not created" );
+            }
+            if (!restSecurity.isSelfServiceRestEndpointEnabled()) {
+                if (debug.warningEnabled()) {
+                    debug.warning("IdentityResource.createRegistrationEmail(): Self-Registration set to : " + restSecurity.isSelfServiceRestEndpointEnabled());
+                }
+                throw new NotSupportedException("Legacy Self Service REST Endpoint is not enabled.");
             }
             if(!restSecurity.isSelfRegistration()){
                 RestDispatcher.debug.warning("IdentityResource.createRegistrationEmail(): Self-Registration set to :"
@@ -520,6 +529,12 @@ public final class IdentityResource implements CollectionResourceProvider {
                 RestDispatcher.debug.warning("IdentityResource.generateNewPasswordEmail(): " +
                         "Rest Security not created. restSecurity = " + restSecurity);
                 throw new NotFoundException("Rest Security Service not created" );
+            }
+            if (!restSecurity.isSelfServiceRestEndpointEnabled()) {
+                if (debug.warningEnabled()) {
+                    debug.warning("Forgot Password set to : " + restSecurity.isSelfServiceRestEndpointEnabled());
+                }
+                throw new NotFoundException("Legacy Self Service REST Endpoint is not enabled.");
             }
             if (!restSecurity.isForgotPassword()) {
                 RestDispatcher.debug.warning("IdentityResource.generateNewPasswordEmail(): Forgot Password set to : "
