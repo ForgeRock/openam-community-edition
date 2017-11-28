@@ -182,7 +182,7 @@ public class SessionAdapterTest {
         Token token = adapter.toToken(mockSession);
 
         // Then
-        assertThat(token.getValue(SessionTokenField.SESSION_ID.getField())).isEqualTo(sessionId);
+        assertThat(token.<String>getValue(SessionTokenField.SESSION_ID.getField())).isEqualTo(sessionId);
     }
 
     @Test
