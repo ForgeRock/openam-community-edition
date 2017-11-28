@@ -107,11 +107,6 @@
         <federation.java.source.version>1.7</federation.java.source.version>
         <federation.java.target.version>1.7</federation.java.target.version>
 
-        <!-- Surefire Argument Line -->
-        <java.surefire.options>-Xms256m -Xmx256m -XX:MaxPermSize=96m</java.surefire.options>
-
-        <!-- JavaDoc Setting Properties -->
-        <javadoc.options>-J-Xms2g -J-Xmx2g -J-XX:MaxPermSize=512m</javadoc.options>
         <!-- Shade plugin setting for ClientSDK build -->
         <generate.clientsdk.sources>false</generate.clientsdk.sources>
 
@@ -259,6 +254,36 @@
                 </repository>
             </repositories>
         </profile>
+        <profile>
+            <id>jdk7.options</id>
+            <activation>
+                <jdk>1.7</jdk>
+            </activation>
+            <properties>
+                <!-- Surefire Argument Line -->
+                <java.surefire.options>-Xms256m -Xmx256m -XX:MaxPermSize=96m</java.surefire.options>
+
+                <!-- JavaDoc Setting Properties -->
+                <javadoc.options>-J-Xms2g -J-Xmx2g -J-XX:MaxPermSize=512m</javadoc.options>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk8.options</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <!-- Disable Doclint on JDK8+ -->
+                <javadoc.opts>-Xdoclint:none</javadoc.opts>
+
+                <!-- Surefire Argument Line -->
+                <java.surefire.options>-Xms256m -Xmx256m</java.surefire.options>
+
+                <!-- JavaDoc Setting Properties -->
+                <javadoc.options>-J-Xms2g -J-Xmx2g</javadoc.options>
+            </properties>
+        </profile>
+
     </profiles>
 
     <!-- OpenAM Child Modules -->
@@ -1749,6 +1774,7 @@
                     <encoding>utf-8</encoding>
                     <source>${java.source.version}</source>
                     <additionalJOption>${javadoc.options}</additionalJOption>
+                    <additionalparam>${javadoc.opts}</additionalparam>
                     <detectLinks>true</detectLinks>
                     <bottom>
                         <![CDATA[Copyright &#169; 2010-2013, <a href="http://www.forgerock.com">ForgeRock<a> All Rights Reserved.]]>
