@@ -44,12 +44,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.sun.org.apache.xpath.internal.XPathAPI;
-import com.sun.org.apache.xml.internal.security.keys.KeyInfo;
-import com.sun.org.apache.xml.internal.security.keys.storage.implementations.KeyStoreResolver;
-import com.sun.org.apache.xml.internal.security.keys.storage.StorageResolver;
-import com.sun.org.apache.xml.internal.security.signature.XMLSignature;
-import com.sun.org.apache.xml.internal.security.utils.Constants;
+import org.apache.xpath.XPathAPI;
+import org.apache.xml.security.keys.KeyInfo;
+import org.apache.xml.security.keys.storage.implementations.KeyStoreResolver;
+import org.apache.xml.security.keys.storage.StorageResolver;
+import org.apache.xml.security.signature.XMLSignature;
+import org.apache.xml.security.utils.Constants;
 
 import com.sun.identity.shared.debug.Debug;
 import com.sun.identity.shared.locale.Locale;
@@ -115,7 +115,7 @@ public final class SAML2MetaSecurityUtils {
             return;
         }
 
-        com.sun.org.apache.xml.internal.security.Init.init();
+        org.apache.xml.security.Init.init();
 
         keyProvider = KeyUtil.getKeyProviderInstance();
         if (keyProvider != null) {
@@ -237,7 +237,7 @@ public final class SAML2MetaSecurityUtils {
         NodeList sigElements = null;
         try {
             Element nscontext =
-                    com.sun.org.apache.xml.internal.security.utils.XMLUtils
+                    org.apache.xml.security.utils.XMLUtils
                             .createDSctx (doc,"ds", Constants.SignatureSpecNS);
             sigElements =
                     XPathAPI.selectNodeList(doc, "//ds:Signature", nscontext);

@@ -24,7 +24,14 @@
  */
 package org.forgerock.openam.utils;
 
+import org.forgerock.util.Reject;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Utility class for handling Strings

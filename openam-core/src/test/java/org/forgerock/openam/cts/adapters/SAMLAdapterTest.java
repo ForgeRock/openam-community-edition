@@ -15,7 +15,7 @@
  */
 package org.forgerock.openam.cts.adapters;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.Matchers.*;
@@ -102,6 +102,6 @@ public class SAMLAdapterTest {
         Token token = adapter.toToken(samlToken);
 
         // Then
-        assertThat(token.getValue(SAMLTokenField.SECONDARY_KEY.getField())).isNull();
+        assertThat(token.<String>getValue(SAMLTokenField.SECONDARY_KEY.getField())).isNull();
     }
 }

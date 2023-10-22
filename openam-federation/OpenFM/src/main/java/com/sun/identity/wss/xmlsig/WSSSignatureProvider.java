@@ -24,10 +24,12 @@
  *
  * $Id: WSSSignatureProvider.java,v 1.13 2009/11/16 21:53:00 mallas Exp $
  *
+ * Portions Copyrighted 2014 ForgeRock AS
  */
 
 package com.sun.identity.wss.xmlsig;
 
+import org.apache.xml.security.utils.ElementProxy;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -38,28 +40,27 @@ import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
-import com.sun.org.apache.xml.internal.security.keys.KeyInfo;
-import com.sun.org.apache.xml.internal.security.c14n.Canonicalizer;
-import com.sun.org.apache.xml.internal.security.signature.XMLSignature;
-import com.sun.identity.saml.xmlsig.AMSignatureProvider;
-import com.sun.identity.saml.xmlsig.XMLSignatureException;
-import com.sun.org.apache.xml.internal.security.utils.Constants;
-import com.sun.org.apache.xpath.internal.XPathAPI;
-import com.sun.org.apache.xml.internal.security.utils.IdResolver;
-import com.sun.org.apache.xml.internal.security.transforms.Transforms;
-import com.sun.org.apache.xml.internal.security.transforms.Transform;
-import com.sun.org.apache.xml.internal.security.encryption.EncryptedKey;
+import org.apache.xml.security.c14n.Canonicalizer;
+import org.apache.xml.security.encryption.EncryptedKey;
+import org.apache.xml.security.keys.KeyInfo;
+import org.apache.xml.security.signature.XMLSignature;
+import org.apache.xml.security.transforms.Transforms;
+import org.apache.xml.security.transforms.Transform;
+import org.apache.xml.security.utils.Constants;
+import org.apache.xpath.XPathAPI;
 
+import com.sun.identity.common.SystemConfigurationUtil;
 import com.sun.identity.saml.common.SAMLConstants;
 import com.sun.identity.saml.common.SAMLUtils;
-import com.sun.identity.shared.xml.XMLUtils;
+import com.sun.identity.saml.xmlsig.AMSignatureProvider;
+import com.sun.identity.saml.xmlsig.XMLSignatureException;
 import com.sun.identity.saml2.common.SAML2Constants;
+import com.sun.identity.shared.encode.Base64;
+import com.sun.identity.shared.xml.XMLUtils;
 import com.sun.identity.wss.security.WSSConstants;
 import com.sun.identity.wss.security.WSSUtils;
 import com.sun.identity.wss.security.STRTransform;
-import com.sun.identity.shared.encode.Base64;
 import com.sun.identity.wss.security.BinarySecurityToken;
-import com.sun.identity.common.SystemConfigurationUtil;
 import com.iplanet.security.x509.CertUtils;
 import javax.xml.transform.TransformerException;
 
@@ -180,7 +181,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
                          WSSConstants.TIME_STAMP).item(0);
         XMLSignature signature = null;
         try {
-            Constants.setSignatureSpecNSprefix("ds");            
+            ElementProxy.setDefaultPrefix(Constants.SignatureSpecNS, SAMLConstants.PREFIX_DS);
             if(symmetricKey) {
                algorithm = SAMLConstants.ALGO_ID_MAC_HMAC_SHA1;               
             } else {                                                    
@@ -195,7 +196,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
                            WSSUtils.bundle.getString("invalidalgorithm"));
               }
             }
-            Element wsucontext = com.sun.org.apache.xml.internal.security.utils.
+            Element wsucontext = org.apache.xml.security.utils.
                     XMLUtils.createDSctx(doc, "wsu", WSSConstants.WSU_NS);
 
             NodeList wsuNodes = (NodeList)XPathAPI.selectNodeList(doc,
@@ -206,7 +207,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
                      Element elem = (Element) wsuNodes.item(i);
                      String id = elem.getAttributeNS(WSSConstants.WSU_NS, "Id");
                      if (id != null && id.length() != 0) {
-                         IdResolver.registerElementById(elem, id);
+                         elem.setIdAttribute(id, true);
                      }
                 }
             }
@@ -268,8 +269,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
                signature.addKeyInfo((X509Certificate)signingCert);                              
             }
             
-            IdResolver.registerElementById(securityTokenRef, secRefId);
-
+            securityTokenRef.setIdAttribute(secRefId, true);
             int size = ids.size();
             for (int i = 0; i < size; ++i) {
                 Transforms transforms = new Transforms(doc);
@@ -408,7 +408,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
         XMLSignature signature = null;
         try {
 
-            Constants.setSignatureSpecNSprefix(SAMLConstants.PREFIX_DS);
+            ElementProxy.setDefaultPrefix(Constants.SignatureSpecNS, SAMLConstants.PREFIX_DS);
             String certAlias = keystore.getCertificateAlias(cert);
             PrivateKey privateKey =
                                 (PrivateKey) keystore.getPrivateKey(certAlias);
@@ -429,7 +429,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
                            SAMLUtils.bundle.getString("invalidalgorithm"));
             }
 
-            Element wsucontext = com.sun.org.apache.xml.internal.security.utils.                    
+            Element wsucontext = org.apache.xml.security.utils.
                 XMLUtils.createDSctx(doc, "wsu", WSSConstants.WSU_NS);
 
             NodeList wsuNodes = (NodeList)XPathAPI.selectNodeList(doc,
@@ -440,7 +440,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
                      Element elem = (Element) wsuNodes.item(i);
                      String id = elem.getAttributeNS(WSSConstants.WSU_NS, "Id");                     
                      if (id != null && id.length() != 0) {
-                         IdResolver.registerElementById(elem, id);
+                         elem.setIdAttribute(id, true);
                      }
                 }
             }
@@ -477,8 +477,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
                 WSSConstants.WSU_ID, secRefId);
             KeyInfo keyInfo = signature.getKeyInfo();
             keyInfo.addUnknownElement(securityTokenRef);
-            IdResolver.registerElementById(securityTokenRef, secRefId);
-            
+            securityTokenRef.setIdAttribute(secRefId, true);
 
             int size = ids.size();
             for (int i = 0; i < size; ++i) {
@@ -576,7 +575,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
         }
         
         try {
-            Element wsucontext = com.sun.org.apache.xml.internal.security.utils.
+            Element wsucontext = org.apache.xml.security.utils.
                     XMLUtils.createDSctx(doc, "wsu", WSSConstants.WSU_NS);
 
             NodeList wsuNodes = (NodeList)XPathAPI.selectNodeList(doc,
@@ -587,7 +586,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
                    Element elem = (Element) wsuNodes.item(i);
                    String id = elem.getAttributeNS(WSSConstants.WSU_NS, "Id");
                    if (id != null && id.length() != 0) {
-                       IdResolver.registerElementById(elem, id);
+                       elem.setIdAttribute(id, true);
                    }
                }
             }
@@ -599,12 +598,12 @@ public class WSSSignatureProvider extends AMSignatureProvider {
                      Element elem = (Element) aList.item(i);
                      String id = elem.getAttribute("AssertionID");
                      if (id != null && id.length() != 0) {
-                         IdResolver.registerElementById(elem, id);
+                         elem.setIdAttribute(id, true);
                      }
                 }
             }
 
-            Element nscontext = com.sun.org.apache.xml.internal.security.utils.
+            Element nscontext = org.apache.xml.security.utils.
                   XMLUtils.createDSctx (doc,"ds",Constants.SignatureSpecNS);
             NodeList sigElements = XPathAPI.selectNodeList (doc,
                 "//ds:Signature", nscontext);
@@ -734,7 +733,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
                return null;
             }
 
-            Element nscontext = com.sun.org.apache.xml.internal.security.utils.
+            Element nscontext = org.apache.xml.security.utils.
                 XMLUtils.createDSctx(doc,"ds",Constants.SignatureSpecNS);
             Element sigElement = (Element) XPathAPI.selectSingleNode(
                           securityElement, "ds:Signature[1]", nscontext);
@@ -751,7 +750,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
             if (reference != null) {
                 String id = reference.getAttribute(SAMLConstants.TAG_URI);
                 id = id.substring(1);
-                nscontext = com.sun.org.apache.xml.internal.security.utils.
+                nscontext = org.apache.xml.security.utils.
                     XMLUtils.createDSctx(doc,SAMLConstants.PREFIX_WSU,
                                          WSSConstants.WSU_NS);
                 Node n = XPathAPI.selectSingleNode(
@@ -847,14 +846,14 @@ public class WSSSignatureProvider extends AMSignatureProvider {
 
         XMLSignature signature = null;
         try {
-            Constants.setSignatureSpecNSprefix(SAMLConstants.PREFIX_DS);                        
+            ElementProxy.setDefaultPrefix(Constants.SignatureSpecNS, SAMLConstants.PREFIX_DS);
 
             if (!isValidAlgorithm(algorithm)) {
                 throw new XMLSignatureException(
                            SAMLUtils.bundle.getString("invalidalgorithm"));
             }
 
-            Element wsucontext = com.sun.org.apache.xml.internal.security.utils.                    
+            Element wsucontext = org.apache.xml.security.utils.
                 XMLUtils.createDSctx(doc, "wsu", WSSConstants.WSU_NS);
 
             NodeList wsuNodes = (NodeList)XPathAPI.selectNodeList(doc,
@@ -865,7 +864,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
                      Element elem = (Element) wsuNodes.item(i);
                      String id = elem.getAttributeNS(WSSConstants.WSU_NS, "Id");                     
                      if (id != null && id.length() != 0) {
-                         IdResolver.registerElementById(elem, id);
+                         elem.setIdAttribute(id, true);
                      }
                 }
             }
@@ -902,8 +901,7 @@ public class WSSSignatureProvider extends AMSignatureProvider {
                 WSSConstants.WSU_ID, secRefId);
             KeyInfo keyInfo = signature.getKeyInfo();
             keyInfo.addUnknownElement(securityTokenRef);
-            IdResolver.registerElementById(securityTokenRef, secRefId);
-            
+            securityTokenRef.setIdAttribute(secRefId, true);
 
             int size = ids.size();
             for (int i = 0; i < size; ++i) {

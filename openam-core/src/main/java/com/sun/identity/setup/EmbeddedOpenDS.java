@@ -318,7 +318,8 @@ public class EmbeddedOpenDS {
      */
     final static String[] preferredTransforms =
             {
-                    "RSA/ECB/OAEPWithSHA1AndMGF1Padding",      // Sun JCE
+                    "AES_256/GCM/NoPadding",                   // OpenJDK
+                    "ChaCha20-Poly1305",
                     "RSA/ /OAEPPADDINGSHA-1",                  // IBMJCE
                     "RSA/ECB/OAEPWithSHA-1AndMGF-1Padding",    // BouncyCastle
                     "RSA/ECB/PKCS1Padding"                     // Fallback

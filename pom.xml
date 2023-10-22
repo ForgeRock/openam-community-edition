@@ -107,11 +107,6 @@
         <federation.java.source.version>1.7</federation.java.source.version>
         <federation.java.target.version>1.7</federation.java.target.version>
 
-        <!-- Surefire Argument Line -->
-        <java.surefire.options>-Xms256m -Xmx256m -XX:MaxPermSize=96m</java.surefire.options>
-
-        <!-- JavaDoc Setting Properties -->
-        <javadoc.options>-J-Xms2g -J-Xmx2g -J-XX:MaxPermSize=512m</javadoc.options>
         <!-- Shade plugin setting for ClientSDK build -->
         <generate.clientsdk.sources>false</generate.clientsdk.sources>
 
@@ -132,6 +127,7 @@
         <xercesj.version>2.11.0</xercesj.version>
         <powermock.version>1.5</powermock.version>
         <jackson.version>2.1.2</jackson.version>
+        <santuario.xmlsec.version>1.5.6</santuario.xmlsec.version>
         <click.version>2.3.0</click.version>
         <commons-beanutils.version>1.8.3</commons-beanutils.version>
         <commons-codec.version>1.6</commons-codec.version>
@@ -155,7 +151,7 @@
         <cc-ui.version>2008-08-08</cc-ui.version>
         <jsr311-api.version>1.1.1</jsr311-api.version>
         <jstl.version>1.1.2</jstl.version>
-        <log4j.version>1.2.16</log4j.version>
+        <reload4j.version>1.2.18.3</reload4j.version>
         <mail.version>1.4.5</mail.version>
         <jersey-oauth.version>1.1.5.2</jersey-oauth.version>
         <relaxngDatatype.version>20020414</relaxngDatatype.version>
@@ -233,7 +229,7 @@
                 <repository>
                     <id>forgerock-internal</id>
                     <name>Forgerock Internal Repository</name>
-                    <url>http://maven.forgerock.org/repo/internal</url>
+                    <url>https://maven.forgerock.org/repo/internal</url>
                 </repository>
             </repositories>
             <dependencyManagement>
@@ -254,10 +250,40 @@
                 <repository>
                     <id>forgerock-internal</id>
                     <name>Forgerock Internal Repository</name>
-                    <url>http://maven.forgerock.org/repo/internal</url>
+                    <url>https://maven.forgerock.org/repo/internal</url>
                 </repository>
             </repositories>
         </profile>
+        <profile>
+            <id>jdk7.options</id>
+            <activation>
+                <jdk>1.7</jdk>
+            </activation>
+            <properties>
+                <!-- Surefire Argument Line -->
+                <java.surefire.options>-Xms256m -Xmx256m -XX:MaxPermSize=96m</java.surefire.options>
+
+                <!-- JavaDoc Setting Properties -->
+                <javadoc.options>-J-Xms2g -J-Xmx2g -J-XX:MaxPermSize=512m</javadoc.options>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk8.options</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <!-- Disable Doclint on JDK8+ -->
+                <javadoc.opts>-Xdoclint:none</javadoc.opts>
+
+                <!-- Surefire Argument Line -->
+                <java.surefire.options>-Xms256m -Xmx256m</java.surefire.options>
+
+                <!-- JavaDoc Setting Properties -->
+                <javadoc.options>-J-Xms2g -J-Xmx2g</javadoc.options>
+            </properties>
+        </profile>
+
     </profiles>
 
     <!-- OpenAM Child Modules -->
@@ -371,7 +397,7 @@
         <repository>
             <id>forgerock-community-repository</id>
             <name>ForgeRock Release Repository</name>
-            <url>http://maven.forgerock.org/repo/community</url>
+            <url>https://maven.forgerock.org/repo/community</url>
 	    <releases>
 	        <enabled>true</enabled>
             </releases>
@@ -384,7 +410,7 @@
         <repository>
             <id>forgerock-internal</id>
             <name>ForgeRock Internal Repository</name>
-            <url>http://maven.forgerock.org/repo/internal</url>
+            <url>https://maven.forgerock.org/repo/internal</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -397,7 +423,7 @@
         <repository>
             <id>maven.forgerock.org</id>
             <name>maven.forgerock.org-openam-dependencies</name>
-            <url>http://maven.forgerock.org/repo/openam-dependencies</url>
+            <url>https://maven.forgerock.org/repo/openam-dependencies</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -409,7 +435,7 @@
         <repository>
             <id>restlet-cache</id>
             <name>Restlet Cache Repository</name>
-            <url>http://maven.forgerock.org/repo/maven.restlet.org</url>
+            <url>https://maven.forgerock.org/repo/maven.restlet.org</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -432,12 +458,12 @@
         <repository>
             <id>forgerock-community-repository</id>
             <name>maven.forgerock.org-releases</name>
-            <url>http://maven.forgerock.org/repo/community</url>
+            <url>https://maven.forgerock.org/repo/community</url>
         </repository>
         <snapshotRepository>
             <id>forgerock-community-repository</id>
             <name>maven.forgerock.org-snapshots</name>
-            <url>http://maven.forgerock.org/repo/community</url>
+            <url>https://maven.forgerock.org/repo/community</url>
         </snapshotRepository>
         <site>
             <id>forgerock.org</id>
@@ -1146,9 +1172,9 @@
             </dependency>
 
             <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${log4j.version}</version>
+                <groupId>ch.qos.reload4j</groupId>
+                <artifactId>reload4j</artifactId>
+                <version>${reload4j.version}</version>
             </dependency>
 
             <dependency>
@@ -1525,6 +1551,15 @@
                 <version>3.0</version>
             </dependency>
 
+            <!--
+              required by the STS
+              -->
+            <dependency>
+                <groupId>org.apache.santuario</groupId>
+                <artifactId>xmlsec</artifactId>
+                <version>${santuario.xmlsec.version}</version>
+            </dependency>
+
             <!-- Test dependency -->
             <dependency>
                 <groupId>org.codehaus.jstestrunner</groupId>
@@ -1739,6 +1774,7 @@
                     <encoding>utf-8</encoding>
                     <source>${java.source.version}</source>
                     <additionalJOption>${javadoc.options}</additionalJOption>
+                    <additionalparam>${javadoc.opts}</additionalparam>
                     <detectLinks>true</detectLinks>
                     <bottom>
                         <![CDATA[Copyright &#169; 2010-2013, <a href="http://www.forgerock.com">ForgeRock<a> All Rights Reserved.]]>
